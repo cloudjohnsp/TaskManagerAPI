@@ -29,10 +29,6 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Release --no-restore
 
-      # Run tests for the Domain layer
-      - name: Run Domain tests
-        run: dotnet test ./TaskManagerAPI/TaskManagerAPI.Domain.UnitTests/TaskManagerAPI.Domain.UnitTests.csproj --no-build --configuration Release
-        
-      # Run tests for the Infrastructure layer
-      - name: Run Infrastructure tests
-        run: dotnet test ./TaskManagerAPI/TaskManagerAPI.Infrastructure.UnitTests/TaskManagerAPI.Infrastructure.UnitTests.csproj --no-build --configuration Release
+      # Run tests
+      - name: Run tests
+        run: dotnet test
