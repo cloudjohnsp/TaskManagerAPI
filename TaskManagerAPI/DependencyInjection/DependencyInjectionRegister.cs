@@ -33,7 +33,7 @@ public static class DependencyInjectionRegister
                 Scheme = "Bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "Type Bearer [space] followed by the JWT Token in the input bellow" 
+                Description = "Type Bearer [space] followed by the JWT Token in the input bellow"
             });
             swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
@@ -46,10 +46,11 @@ public static class DependencyInjectionRegister
                                 Id = "Bearer"
                             }
                         },
-                        new string[] {}
+                        Array.Empty<string>()
                     }
                 });
         });
+
         services.AddMappings();
 
         return services;
@@ -60,9 +61,8 @@ public static class DependencyInjectionRegister
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(Assembly.GetExecutingAssembly());
 
-        services.AddSingleton(config);
-        services.AddScoped<IMapper, ServiceMapper>();
+        return services.AddSingleton(config)
+             .AddScoped<IMapper, ServiceMapper>();
 
-        return services;
     }
 }

@@ -11,31 +11,28 @@ public static class DependencyInjectionRegister
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, ConfigurationManager configuration)
     {
-        services.AddPersistence(configuration);
-        services.AddRepositories();
-        services.AddAuth(configuration);
-        return services;
+        return services.AddPersistence(configuration)
+            .AddRepositories()
+            .AddAuth(configuration);
     }
 
     public static IServiceCollection AddPersistence(this IServiceCollection services, ConfigurationManager configuration)
     {
         string connectionString = configuration.GetConnectionString("DefaultConnection")!;
-        services.AddDbContext<TaskManagerContext>(options => options.UseSqlServer(connectionString));
-        return services;
+        return services
+            .AddDbContext<TaskManagerContext>(options => options.UseSqlServer(connectionString));
     }
 
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<ITaskListRepository, TaskListRepository>();
-        services.AddScoped<ITaskItemRepository, TaskItemRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        return services;
+        return services.AddScoped<ITaskListRepository, TaskListRepository>()
+             .AddScoped<ITaskItemRepository, TaskItemRepository>()
+             .AddScoped<IUserRepository, UserRepository>();
     }
 
     public static IServiceCollection AddAuth(this IServiceCollection services, ConfigurationManager configuration)
     {
-        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-        services.AddScoped<IJwtConfig, JwtConfig>();
-        return services;
+        return services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"))
+            .AddScoped<IJwtConfig, JwtConfig>();
     }
 }

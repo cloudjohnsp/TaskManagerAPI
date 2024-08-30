@@ -8,12 +8,12 @@ using TaskManagerAPI.Application.Queries;
 
 namespace TaskManagerAPI.Application.Validators;
 
-public sealed class GetTaskListQueryValidator 
-    : AbstractValidator<GetTaskListQuery>
+public sealed class GetUserQueryValidator 
+    : AbstractValidator<GetUserQuery>
 {
-    public GetTaskListQueryValidator()
+    public GetUserQueryValidator()
     {
-        RuleFor(command => command.Id)
+        RuleFor(query => query.Id)
             .NotEmpty();
     }
 }

@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace TaskManagerAPI.Domain.Entities;
 
-public class User
+public class User : BaseEntity
 {
-    public string Id { get; set; } = null!;
-    public string NickName { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    public string NickName { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
     public ICollection<TaskList> TasksLists { get; set; } = null!;
@@ -18,7 +17,7 @@ public class User
     public User()
     {}
 
-    protected User(string id, string nickName, string password, DateTime createdAt, DateTime lastUpdatedAt, ICollection<TaskList> tasksLists)
+    public User(string id, string nickName, string password, DateTime createdAt, DateTime lastUpdatedAt, ICollection<TaskList> tasksLists)
     {
         Id = id;
         NickName = nickName;

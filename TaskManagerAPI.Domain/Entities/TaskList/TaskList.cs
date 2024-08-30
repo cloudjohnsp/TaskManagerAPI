@@ -7,20 +7,19 @@ using System.Threading.Tasks;
 
 namespace TaskManagerAPI.Domain.Entities;
 
-public class TaskList
+public class TaskList : BaseEntity
 {
-    public string Id { get; set; } = null!;
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
     public ICollection<TaskItem> TaskItems { get; set; } = [];
-    public string UserId { get; set; } = null!;
+    public string UserId { get; set; } = string.Empty;
     [JsonIgnore]
     public User User { get; set; } = null!;
 
     public TaskList() { }
 
-    protected TaskList(string id, string name, DateTime createdAt, DateTime lastUpdatedAt, List<TaskItem> taskItems, string userId)
+    public TaskList(string id, string name, DateTime createdAt, DateTime lastUpdatedAt, List<TaskItem> taskItems, string userId)
     {
         Id = id;
         Name = name;

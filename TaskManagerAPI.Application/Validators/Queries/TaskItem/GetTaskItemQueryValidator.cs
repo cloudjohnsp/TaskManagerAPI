@@ -8,10 +8,10 @@ using TaskManagerAPI.Application.Queries;
 
 namespace TaskManagerAPI.Application.Validators;
 
-public sealed class GetTaskListQueryValidator 
-    : AbstractValidator<GetTaskListQuery>
+public sealed class GetTaskItemQueryValidator 
+    : AbstractValidator<GetTaskItemQuery>
 {
-    public GetTaskListQueryValidator()
+    public GetTaskItemQueryValidator()
     {
         RuleFor(command => command.Id)
             .NotEmpty();

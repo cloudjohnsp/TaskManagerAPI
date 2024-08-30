@@ -5,19 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
-using TaskManagerAPI.Domain.Entities;
 
 namespace TaskManagerAPI.Application.Validators;
 
-public sealed class UpdateTaskListCommandValidator 
-    : AbstractValidator<UpdateTaskListCommand>
+public sealed class AuthenticationCommandValidator 
+    : AbstractValidator<AuthenticationCommand>
 {
-    public UpdateTaskListCommandValidator()
+    public AuthenticationCommandValidator()
     {
-        RuleFor(command => command.Id)
+        RuleFor(command => command.NickName)
             .NotEmpty();
-        RuleFor(command => command.Name)
-            .Length(1,50)
+        RuleFor(command => command.Password)
             .NotEmpty();
     }
 }

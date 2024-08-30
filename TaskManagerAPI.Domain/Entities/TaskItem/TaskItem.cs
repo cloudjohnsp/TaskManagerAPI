@@ -2,20 +2,19 @@
 
 namespace TaskManagerAPI.Domain.Entities;
 
-public class TaskItem
+public class TaskItem : BaseEntity
 {
-    public string Id { get; set; } = null!;
-    public string Description { get; set; } = null!;
+    public string Description { get; set; } = string.Empty;
     public bool IsDone { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
-    public string TaskListId { get; set; } = null!;
+    public string TaskListId { get; set; } = string.Empty;
     [JsonIgnore]
     public TaskList TaskList { get; set; } = null!;
 
     public TaskItem() { }
 
-    protected TaskItem(string id, string description, bool isDone, DateTime createdAt, DateTime lastUpdatedAt, string taskListId) 
+    public TaskItem(string id, string description, bool isDone, DateTime createdAt, DateTime lastUpdatedAt, string taskListId) 
     {
         Id = id;
         Description = description;

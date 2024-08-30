@@ -10,13 +10,14 @@ public static class DependencyInjectionRegister
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddMediatR(config =>
+        return services.AddMediatR(config =>
         {
             config
-            .RegisterServicesFromAssembly(typeof(DependencyInjectionRegister).Assembly);
-            config.AddOpenBehavior(typeof(ValidationBehaviour<,>));
-        });
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        return services;
+            .RegisterServicesFromAssembly(typeof(DependencyInjectionRegister).Assembly)
+                .AddOpenBehavior(typeof(ValidationBehaviour<,>))
+                .AddOpenBehavior(typeof(LoggingBehaviour<,>));
+
+        })
+            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
