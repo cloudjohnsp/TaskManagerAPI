@@ -18,7 +18,7 @@ namespace TaskManagerAPI.Infrastructure.UnitTests;
 public class UserRepositoryTests
 {
     private readonly Mock<IUserRepository> _userRepositoryMock;
-    private User _user;
+    private readonly User _user = null!;
 
     public UserRepositoryTests()
     {
