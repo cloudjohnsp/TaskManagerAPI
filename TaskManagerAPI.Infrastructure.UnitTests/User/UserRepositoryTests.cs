@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManagerAPI.Application.Commands;
-using TaskManagerAPI.Application.Handlers;
-using TaskManagerAPI.Application.Queries;
 using TaskManagerAPI.Domain.Entities;
 using TaskManagerAPI.Infrastructure.Persistence.EntityFramework.Contexts;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
@@ -17,104 +14,125 @@ namespace TaskManagerAPI.Infrastructure.UnitTests;
 
 public class UserRepositoryTests
 {
-    private readonly Mock<IUserRepository> _userRepositoryMock;
-    private readonly User _user = null!;
+    private readonly Mock<TaskManagerContext> _dbContextMock;
+    private readonly Mock<DbSet<User>> _userDbSetMock;
+    private readonly UserRepository _userRepository;
 
     public UserRepositoryTests()
     {
-        _userRepositoryMock = new Mock<IUserRepository>();
-        _user = User.Create("john_doe", "Password#1090");
+        _dbContextMock = new Mock<TaskManagerContext>();
+        _userDbSetMock = new Mock<DbSet<User>>();
+        _dbContextMock.Setup(m => m.Users).Returns(_userDbSetMock.Object);
+        _userRepository = new UserRepository(_dbContextMock.Object);
+    }
+
+    private TaskManagerContext GetInMemoryDbContext()
+    {
+        var options = new DbContextOptionsBuilder<TaskManagerContext>()
+            .UseInMemoryDatabase(databaseName: "TaskManagerTestDb")
+            .Options;
+
+        return new TaskManagerContext(options);
     }
 
     [Fact]
-    public async void Create_Returns_User()
+    public async Task CreateAsync_ShouldAddUserAndSaveChanges()
     {
         // Arrange
-        _userRepositoryMock.Setup(x => x.Create(It.IsAny<User>()))
-            .Returns(Task.FromResult(_user));
-        var command = new CreateUserCommand(_user.NickName, _user.Password);
-        var handler = new CreateUserCommandHandler(_userRepositoryMock.Object);
+        var user = new User { Id = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a", NickName = "test_user" };
+
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await _userRepository.CreateAsync(user);
+
+        // Assert
+        _userDbSetMock.Verify(x => x.AddAsync(user, default), Times.Once);
+        _dbContextMock.Verify(x => x.SaveChangesAsync(default), Times.Once);
+    }
+
+    [Fact]
+    public void DeleteAsync_ShouldRemoveUserAndSaveChanges()
+    {
+        // Arrange
+        var user = new User { Id = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a", NickName = "test_user" };
+
+        // Act
+        _userRepository.DeleteAsync(user);
+
+        // Assert
+        _userDbSetMock.Verify(x => x.Remove(user), Times.Once);
+        _dbContextMock.Verify(x => x.SaveChanges(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAsync_ShouldReturnUser_WhenUserExists()
+    {
+        // Arrange
+        var userId = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a";
+        var user = new User { Id = userId, NickName = "test_user" };
+
+        using var context = GetInMemoryDbContext();
+        context.Users.Add(user);
+        context.SaveChanges();
+
+        var repository = new UserRepository(context);
+
+        // Act
+        var result = await repository.GetAsync(userId);
+
         // Assert
         result.Should().NotBeNull();
+        result!.Id.Should().Be(userId);
         result.Should().BeOfType<User>();
-        result.NickName.Should().Be("john_doe");
     }
 
     [Fact]
-    public async void Get_Returns_User()
+    public async Task GetByNickNameAsync_ShouldReturnUser_WhenNickNameExists()
     {
+        var users = User.Create("john_doe", "Pass@1234", "Common");
         // Arrange
-        _userRepositoryMock.Setup(x => x.Get(It.IsAny<string>()))
-            .Returns(Task.FromResult((User?)_user));
+        using var context = GetInMemoryDbContext();
+        context.Users.Add(users);
+        context.SaveChanges();
 
-        var query = new GetUserQuery(_user.Id);
-        var handler = new GetUserQueryHandler(_userRepositoryMock.Object);
+        var repository = new UserRepository(context);
         // Act
-        User? result = await handler.Handle(query, CancellationToken.None);
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().BeOfType<User>();
-        result?.NickName.Should().Be("john_doe");
-    }
-
-    [Fact]
-    public async void UpdateNickName_Returns_UpdatedUser()
-    {
-        // Arrange
-        var updatedUser = User.Create("jane_doe", "Password#1090");
-        updatedUser.Id = _user.Id;
-        updatedUser.CreatedAt = _user.CreatedAt;
-        updatedUser.LastUpdatedAt = _user.LastUpdatedAt;
-
-        _userRepositoryMock
-            .Setup(x => x.UpdateNickName(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(Task.FromResult((User?)updatedUser));
-
-        UpdateUserNickNameCommand command = new(_user.Id, updatedUser.NickName);
-        UpdateUserNickNameCommandHandler handler = new(_userRepositoryMock.Object);
-
-        // Act
-        User? result = await handler.Handle(command, CancellationToken.None);
+        var result = await repository.GetByNickNameAsync("john_doe");
 
         // Assert
         result.Should().NotBeNull();
+        result!.NickName.Should().Be("john_doe");
         result.Should().BeOfType<User>();
-        result?.NickName.Should().Be("jane_doe");
     }
 
     [Fact]
-    public async void Delete_Returns_Nothing()
+    public async Task UpdateNickNameAsync_ShouldUpdateNickNameAndSaveChanges()
     {
         // Arrange
-        _userRepositoryMock
-            .Setup(x => x.Delete(It.IsAny<string>()))
-            .Returns(Task.CompletedTask);
+        var userId = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a";
+        var user = new User { Id = userId, NickName = "old_nickname" };
+        var newNickName = "new_nickname";
 
-        DeleteUserCommand command = new(_user.Id);
-        DeleteUserCommandHandler handler = new(_userRepositoryMock.Object);
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await _userRepository.UpdateNickNameAsync(user, newNickName);
 
         // Assert
-        result.Should().Be(Task.CompletedTask);
+        result.NickName.Should().Be(newNickName);
+        _dbContextMock.Verify(x => x.SaveChangesAsync(default), Times.Once);
     }
 
     [Fact]
-    public async void UpdatePassword_Returns_Nothing()
+    public async Task UpdatePasswordAsync_ShouldUpdatePasswordAndSaveChanges()
     {
         // Arrange
-        _userRepositoryMock
-            .Setup(x => x.UpdatePassword(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(Task.CompletedTask);
+        var userId = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a";
+        var user = new User { Id = userId, Password = "old_password" };
+        var newPassword = "new_password";
 
-        UpdateUserPasswordCommand command = new(_user.Id, "Password@01234");
-        UpdateUserPasswordCommandHandler handler = new(_userRepositoryMock.Object);
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await _userRepository.UpdatePasswordAsync(user, newPassword);
 
         // Assert
-        result.Should().Be(Task.CompletedTask);
+        user.Password.Should().Be(newPassword);
+        _dbContextMock.Verify(x => x.SaveChangesAsync(default), Times.Once);
     }
 }
