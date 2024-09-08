@@ -1,8 +1,8 @@
 ﻿using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagerAPI.Api.Controllers.Common;
-using TaskManagerAPI.Api.Helpers;
 using TaskManagerAPI.Application.Commands;
 using TaskManagerAPI.Application.Queries;
 using TaskManagerAPI.Contracts;
@@ -16,20 +16,18 @@ public class UserController : TaskManagerApiController
 {
     private readonly ISender _mediator;
     private readonly IMapper _mapper;
-    private readonly IJwtConfig _jwtConfig;
 
-    public UserController(ISender mediator, IMapper mapper, IJwtConfig jwtConfig)
+    public UserController(ISender mediator, IMapper mapper)
     {
         _mediator = mediator;
         _mapper = mapper;
-        _jwtConfig = jwtConfig;
     }
 
     [HttpPost]
     [Route("create-user")]
     public async Task<ActionResult<CreateUserResponse>> CreateUser(CreateUserRequest request)
     {
-        CreateUserCommand command = new(request.NickName, request.Password);
+        CreateUserCommand command = new(request.NickName, request.Password, request.Role);
         User commandResult = await _mediator.Send(command);
         CreateUserResponse response = _mapper.Map<CreateUserResponse>(commandResult);
         return StatusCode(StatusCodes.Status201Created, response);
@@ -77,13 +75,11 @@ public class UserController : TaskManagerApiController
     }
 
     [HttpPost]
-    [Route("authenticate")]
-    public async Task<ActionResult<AuthenticationResponse>> Authenticate(AuthenticationRequest request)
+    [Route("login")]
+    public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
     {
-        AuthenticationCommand command = new(request.NickName, request.Password);
-        User? commandResult = await _mediator.Send(command);
-        string token = await _jwtConfig.GenerateJwtToken(commandResult!);
-        AuthenticationResponse response = new(commandResult!.Id, commandResult.NickName, token);
-        return StatusCode(StatusCodes.Status200OK, response);
+        LoginQuery query = new(request.NickName, request.Password);
+        LoginResult? queryResult = await _mediator.Send(query);
+        return StatusCode(StatusCodes.Status200OK, _mapper.Map<LoginResponse>(queryResult));
     }
 }

@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Contracts;
 
-namespace TaskManagerAPI.Application.Commands;
+namespace TaskManagerAPI.Application.Queries;
 
-public sealed record AuthenticationCommand
+public record LoginQuery
 (
     string NickName,
     string Password
-) : IRequest<User?>;
+): IRequest<LoginResult>;

@@ -9,8 +9,9 @@ namespace TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 public interface ITaskItemRepository
 {
-    Task<TaskItem> Create(TaskItem item);
-    Task<TaskItem?> GetTaskItem(string id);
-    Task<TaskItem?> Update(string id, string description, bool isDone);
-    Task Delete(string id);
+    Task CreateAsync(TaskItem taskItem);
+    Task<TaskItem?> GetAsync(string id);
+    Task<TaskItem> UpdateAsync(TaskItem taskItem, string description);
+    Task<TaskItem> UpdateStatusAsync(TaskItem taskItem, bool isDone);
+    void DeleteAsync(TaskItem taskItem);
 }

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using System.Text.Json;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Domain.Exceptions.BaseExceptions;
 
 namespace TaskManagerAPI.Api.Middlewares;
@@ -31,7 +32,9 @@ public sealed class ExceptionHandlingMiddleware : IMiddleware
         {
             BadRequestException => StatusCodes.Status400BadRequest,
             NotFoundException => StatusCodes.Status404NotFound,
-            ValidationException => StatusCodes.Status400BadRequest, 
+            ValidationException => StatusCodes.Status400BadRequest,
+            ConflictException => StatusCodes.Status409Conflict,
+            InternalErrorException => StatusCodes.Status500InternalServerError,
             _ => StatusCodes.Status500InternalServerError
         };
 

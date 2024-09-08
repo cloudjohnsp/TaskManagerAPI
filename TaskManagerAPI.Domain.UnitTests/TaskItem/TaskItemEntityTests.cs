@@ -11,7 +11,7 @@ namespace TaskManagerAPI.Domain.UnitTests;
 public class TaskItemEntityTests
 {
     [Fact]
-    public void CreateMethod_Returns_NewTaskItemEntity()
+    public void Create_Returns_NewTaskItemEntity()
     {
         // Arrange
         // Act
@@ -20,5 +20,6 @@ public class TaskItemEntityTests
         result.Should().NotBeNull();
         result.Should().BeOfType<TaskItem>();
         result.Description.Should().Be("Chest Workout");
+        result.TaskListId.Should().Be("ea44ebc1-d14b-4d81-ad94-78884d91e53f");
     }
 }

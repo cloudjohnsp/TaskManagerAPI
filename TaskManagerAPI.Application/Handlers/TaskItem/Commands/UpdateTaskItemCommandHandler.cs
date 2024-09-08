@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
 using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Application.Handlers.Commands;
@@ -18,9 +19,11 @@ public sealed class UpdateTaskItemCommandHandler : IRequestHandler<UpdateTaskIte
         _taskItemRepository = taskItemRepository;
     }
 
-    public async Task<TaskItem?> Handle(UpdateTaskItemCommand request, CancellationToken cancellationToken)
+    public async Task<TaskItem?> Handle(UpdateTaskItemCommand command, CancellationToken cancellationToken)
     {
+        TaskItem? taskItem = await _taskItemRepository
+            .GetAsync(command.Id) ?? throw new TaskItemNotFoundException(command.Id);
         return await _taskItemRepository
-            .Update(request.Id, request.Description, request.IsDone);
+            .UpdateAsync(taskItem, command.Description);
     }
 }

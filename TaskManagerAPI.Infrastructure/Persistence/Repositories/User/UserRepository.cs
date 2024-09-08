@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BC = BCrypt.Net.BCrypt;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -19,81 +18,46 @@ public class UserRepository : IUserRepository
     public UserRepository(TaskManagerContext dbContext)
         => _dbContext = dbContext;
 
-    public async Task<User> Create(User user)
+    public async Task CreateAsync(User user)
     {
-        user.Password = BC.HashPassword(user.Password);
-        EntityEntry<User> result = await _dbContext.Users
+        await _dbContext.Users
             .AddAsync(user);
         await _dbContext.SaveChangesAsync();
-        return user;
     }
 
-    public async Task Delete(string id)
+    public void DeleteAsync(User user)
     {
-        User? userToBeDeleted = await _dbContext.Users.FindAsync(id);
-        if (userToBeDeleted != null)
-        {
-            _dbContext.Users.Remove(userToBeDeleted);
-            _dbContext.SaveChanges();
-            return;
-        }
-
-        throw new UserNotFoundException(id);
+        _dbContext.Users.Remove(user);
+        _dbContext.SaveChanges();
     }
 
-    public async Task<User?> Get(string id)
+    public async Task<User?> GetAsync(string id)
     {
-        User? user = await _dbContext.Users
+        return await _dbContext.Users
             .Where(u => u.Id == id)
             .Include(t => t.TasksLists)
             .ThenInclude(x => x.TaskItems)
             .FirstOrDefaultAsync();
-        return user ?? throw new UserNotFoundException(id);
     }
 
-    public async Task<User?> GetByUserCredentials(string nickName, string password)
+    public async Task<User?> GetByNickNameAsync(string nickName)
     {
-        User? user = await _dbContext.Users
+        return await _dbContext.Users
             .FirstOrDefaultAsync(n => n.NickName == nickName);
+    }
 
-        if (user is null || !BC.Verify(password, user!.Password))
-        {
-            throw new WrongCredentialsException($"User with nickname: {nickName} does not exist or password is incorrect.");
-        }
-
+    public async Task<User> UpdateNickNameAsync(User user, string nickName)
+    {
+        user.NickName = nickName;
+        user.LastUpdatedAt = DateTime.Now;
+        await _dbContext.SaveChangesAsync();
         return user;
     }
 
-    public async Task<User?> UpdateNickName(string id, string nickName)
+    public async Task UpdatePasswordAsync(User user, string password)
     {
-        User? userToBeUpdated = await _dbContext.Users
-            .FindAsync(id);
-
-        if (userToBeUpdated != null)
-        {
-            userToBeUpdated.NickName = nickName;
-            userToBeUpdated.LastUpdatedAt = DateTime.Now;
-            _dbContext.Entry(userToBeUpdated).State = EntityState.Modified;
-
-            await _dbContext.SaveChangesAsync();
-            return userToBeUpdated;
-        }
-
-        throw new UserNotFoundException(id);
-    }
-
-    public async Task UpdatePassword(string id, string password)
-    {
-        User? userToBeUpdated = await _dbContext.Users.FindAsync(id);
-        if (userToBeUpdated != null)
-        {
-            userToBeUpdated.Password = BC.HashPassword(password);
-            userToBeUpdated.LastUpdatedAt = DateTime.Now;
-            _dbContext.Entry(userToBeUpdated).State = EntityState.Modified;
-
-            await _dbContext.SaveChangesAsync();
-            return;
-        }
-        throw new UserNotFoundException(id);
+        user.Password = password;
+        user.LastUpdatedAt = DateTime.Now;
+        await _dbContext.SaveChangesAsync();
     }
 }

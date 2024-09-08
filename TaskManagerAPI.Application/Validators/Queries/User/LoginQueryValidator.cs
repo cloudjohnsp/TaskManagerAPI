@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
+using TaskManagerAPI.Application.Queries;
 
 namespace TaskManagerAPI.Application.Validators;
 
-public sealed class AuthenticationCommandValidator 
-    : AbstractValidator<AuthenticationCommand>
+public sealed class LoginQueryValidator
+    : AbstractValidator<LoginQuery>
 {
-    public AuthenticationCommandValidator()
+    public LoginQueryValidator()
     {
         RuleFor(command => command.NickName)
             .NotEmpty();

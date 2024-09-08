@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
+using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Application.Handlers.Commands;
@@ -12,12 +14,14 @@ namespace TaskManagerAPI.Application.Handlers.Commands;
 public class DeleteTaskListCommandHandler : IRequestHandler<DeleteTaskListCommand, Task>
 {
     private readonly ITaskListRepository _taskListRepository;
-    public DeleteTaskListCommandHandler(ITaskListRepository taskListRepository) 
+    public DeleteTaskListCommandHandler(ITaskListRepository taskListRepository)
         => _taskListRepository = taskListRepository;
 
-    public async Task<Task> Handle(DeleteTaskListCommand request, CancellationToken cancellationToken)
+    public async Task<Task> Handle(DeleteTaskListCommand command, CancellationToken cancellationToken)
     {
-        await _taskListRepository.Delete(request.Id);
+        TaskList? taskList = await _taskListRepository
+            .GetAsync(command.Id) ?? throw new TaskListNotFoundException(command.Id);
+        _taskListRepository.DeleteAsync(taskList);
         return Task.CompletedTask;
     }
 }

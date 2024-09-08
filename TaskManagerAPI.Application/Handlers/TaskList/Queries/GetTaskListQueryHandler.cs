@@ -13,8 +13,8 @@ public class GetTaskListQueryHandler : IRequestHandler<GetTaskListQuery, TaskLis
     {
         _taskListRepository = taskListRepository;
     }
-    public async Task<TaskList?> Handle(GetTaskListQuery request, CancellationToken cancellationToken)
-    {
-        return await _taskListRepository.Get(request.Id);
-    }
+    public async Task<TaskList?> Handle(GetTaskListQuery query, CancellationToken cancellationToken)
+        => await _taskListRepository
+            .GetAsync(query.Id) ?? throw new TaskListNotFoundException(query.Id);
+
 }

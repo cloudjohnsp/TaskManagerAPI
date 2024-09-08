@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
 using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Application.Handlers.Commands;
@@ -18,10 +19,12 @@ public sealed class CreateTaskItemCommandHandler : IRequestHandler<CreateTaskIte
         _taskItemRepository = taskItemRepository;
     }
 
-    public async Task<TaskItem> Handle(CreateTaskItemCommand request, CancellationToken cancellationToken)
+    public async Task<TaskItem> Handle(CreateTaskItemCommand command, CancellationToken cancellationToken)
     {
-        TaskItem newTaskItem = TaskItem.Create(request.Description, request.TaskListId);
-        TaskItem result = await _taskItemRepository.Create(newTaskItem);
-        return result;
+        TaskItem newTaskItem = TaskItem.Create(command.Description, command.TaskListId);
+        await _taskItemRepository.CreateAsync(newTaskItem);
+        TaskItem? result = await _taskItemRepository.GetAsync(newTaskItem.Id);
+
+        return result ?? throw new TaskItemCreateFailureException();
     }
 }

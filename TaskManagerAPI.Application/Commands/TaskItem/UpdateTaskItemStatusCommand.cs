@@ -8,8 +8,8 @@ using TaskManagerAPI.Domain.Entities;
 
 namespace TaskManagerAPI.Application.Commands;
 
-public sealed record UpdateTaskItemCommand
+public record UpdateTaskItemStatusCommand
 (
     string Id,
-    string Description
+    bool IsDone
 ) : IRequest<TaskItem?>;

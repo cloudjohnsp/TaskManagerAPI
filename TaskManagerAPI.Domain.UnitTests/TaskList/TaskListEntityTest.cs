@@ -11,7 +11,7 @@ namespace TaskManagerAPI.Domain.UnitTests;
 public class TaskListEntityTest
 {
     [Fact]
-    public void CreateMethod_Returns_NewTaskListEntity()
+    public void Create_Returns_NewTaskListEntity()
     {
         // Arrange
         // Act
@@ -20,5 +20,6 @@ public class TaskListEntityTest
         result.Should().NotBeNull();
         result.Should().BeOfType<TaskList>();
         result.Name.Should().Be("Gym Task");
+        result.UserId.Should().Be("ea44ebc1-d14b-4d81-ad94-78884d91e53f");
     }
 }

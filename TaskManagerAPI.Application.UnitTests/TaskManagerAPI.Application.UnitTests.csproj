@@ -13,7 +13,6 @@
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -21,11 +20,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TaskManagerAPI.Application\TaskManagerAPI.Application.csproj" />
+    <ProjectReference Include="..\TaskManagerAPI.Domain\TaskManagerAPI.Domain.csproj" />
     <ProjectReference Include="..\TaskManagerAPI.Infrastructure\TaskManagerAPI.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TaskItem\" />
   </ItemGroup>
 
 </Project>

@@ -18,51 +18,38 @@ public sealed class TaskItemRepository : ITaskItemRepository
     {
         _dbContext = context;
     }
-    public async Task<TaskItem> Create(TaskItem item)
+    public async Task CreateAsync(TaskItem taskItem)
     {
-        EntityEntry<TaskItem> result = await _dbContext
-            .TaskItems.AddAsync(item);
+        await _dbContext
+             .TaskItems.AddAsync(taskItem);
         await _dbContext.SaveChangesAsync();
-
-        return result.Entity;
     }
 
-    public async Task Delete(string id)
+    public void DeleteAsync(TaskItem taskItem)
     {
-        TaskItem? taskItem = await _dbContext.TaskItems.FindAsync(id);
-        if (taskItem != null)
-        {
-            _dbContext.TaskItems.Remove(taskItem);
-            _dbContext.SaveChanges();
-            return;
-        }
-
-        throw new TaskItemNotFoundException(id);
+        _dbContext.TaskItems.Remove(taskItem);
+        _dbContext.SaveChanges();
     }
 
-    public async Task<TaskItem?> GetTaskItem(string id)
-    {
-        TaskItem? taskItem = await _dbContext.TaskItems
-            .FirstOrDefaultAsync(task => task.Id == id);
-
-        return taskItem ?? throw new TaskItemNotFoundException(id);
-    }
-
-    public async Task<TaskItem?> Update(string id, string description, bool isDone)
-    {
-        TaskItem? taskItemToUpdate = await _dbContext.TaskItems
+    public async Task<TaskItem?> GetAsync(string id)
+        => await _dbContext.TaskItems
             .FindAsync(id);
 
-        if (taskItemToUpdate != null)
-        {
-            taskItemToUpdate.Description = description;
-            taskItemToUpdate.CreatedAt = DateTime.Now;
-            taskItemToUpdate.IsDone = isDone;
 
-            await _dbContext.SaveChangesAsync();
-            return taskItemToUpdate;
-        }
+    public async Task<TaskItem> UpdateAsync(TaskItem taskItem, string description)
+    {
+        taskItem.Description = description;
+        taskItem.CreatedAt = DateTime.Now;
 
-        throw new TaskItemNotFoundException(id);
+        await _dbContext.SaveChangesAsync();
+        return taskItem;
+    }
+
+    public async Task<TaskItem> UpdateStatusAsync(TaskItem taskItem, bool isDone)
+    {
+        taskItem.IsDone = isDone;
+        taskItem.LastUpdatedAt = DateTime.Now;
+        await _dbContext.SaveChangesAsync();
+        return taskItem;
     }
 }

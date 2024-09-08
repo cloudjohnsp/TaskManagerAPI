@@ -6,7 +6,7 @@ using TaskManagerAPI.Application.Commands;
 using TaskManagerAPI.Application.Queries;
 using TaskManagerAPI.Contracts.HTTP;
 using TaskManagerAPI.Domain.Entities;
-using TaskManagerAPI.Api.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManagerAPI.Api.Controllers;
 
@@ -43,6 +43,7 @@ public class TaskListController : TaskManagerApiController
 
     [HttpGet]
     [Route("get-all-tasklists")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<TaskListResponse>?>> GetAllTaskLists()
     {
         IEnumerable<TaskList>? commandResult = await _mediator.Send(new GetAllTaskListsQuery());
@@ -50,7 +51,7 @@ public class TaskListController : TaskManagerApiController
         return StatusCode(StatusCodes.Status200OK, response);
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("update-tasklist")]
     public async Task<ActionResult<TaskListResponse?>> UpdateTaskList(UpdateTaskListRequest request)
     {

@@ -20,8 +20,7 @@ public sealed class GetTaskItemQueryHandler : IRequestHandler<GetTaskItemQuery, 
         _taskItemRepository = taskItemRepository;
     }
 
-    public async Task<TaskItem?> Handle(GetTaskItemQuery request, CancellationToken cancellationToken)
-    {
-        return await _taskItemRepository.GetTaskItem(request.Id);
-    }
+    public async Task<TaskItem?> Handle(GetTaskItemQuery query, CancellationToken cancellationToken)
+        => await _taskItemRepository
+            .GetAsync(query.Id);
 }

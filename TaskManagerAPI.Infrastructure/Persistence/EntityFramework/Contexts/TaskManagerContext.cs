@@ -22,7 +22,7 @@ public class TaskManagerContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
     }
-    public DbSet<TaskItem> TaskItems { get; set; }
-    public DbSet<TaskList> TaskLists { get; set; }
+    public virtual DbSet<TaskItem> TaskItems { get; set; }
+    public virtual DbSet<TaskList> TaskLists { get; set; }
     public virtual DbSet<User> Users { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Application.Commands;
@@ -12,9 +13,12 @@ public class CreateTaskListCommandHandler : IRequestHandler<CreateTaskListComman
         _tasklistRepository = tasklistRepository;
     }
 
-    public async Task<TaskList> Handle(CreateTaskListCommand request, CancellationToken cancellationToken)
+    public async Task<TaskList> Handle(CreateTaskListCommand command, CancellationToken cancellationToken)
     {
-        TaskList newTaskList = TaskList.Create(request.Name, request.UserId);
-        return await _tasklistRepository.Create(newTaskList);
+        TaskList newTaskList = TaskList.Create(command.Name, command.UserId);
+        await _tasklistRepository.CreateAsync(newTaskList);
+        TaskList? result = await _tasklistRepository
+            .GetAsync(newTaskList.Id);
+        return result!;
     }
 }

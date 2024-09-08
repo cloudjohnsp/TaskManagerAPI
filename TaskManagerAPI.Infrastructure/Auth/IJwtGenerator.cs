@@ -7,8 +7,7 @@ using TaskManagerAPI.Domain.Entities;
 
 namespace TaskManagerAPI.Infrastructure.Auth;
 
-public interface IJwtConfig
+public interface IJwtGenerator
 {
-    Task<User?> GetUserFromClaims(string token);
-    Task<string> GenerateJwtToken(User user);
+    string GenerateToken(User user);
 }

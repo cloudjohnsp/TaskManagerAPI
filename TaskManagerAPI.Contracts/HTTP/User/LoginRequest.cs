@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaskManagerAPI.Contracts.HTTP;
 
-public sealed record AuthenticationRequest
+public record LoginRequest
 (
     string NickName,
     string Password

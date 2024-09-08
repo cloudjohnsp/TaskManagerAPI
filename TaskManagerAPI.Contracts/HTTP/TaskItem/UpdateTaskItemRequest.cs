@@ -9,6 +9,5 @@ namespace TaskManagerAPI.Contracts.HTTP;
 public sealed record UpdateTaskItemRequest
 (
     string Id,
-    string Description, 
-    bool IsDone
+    string Description
 );

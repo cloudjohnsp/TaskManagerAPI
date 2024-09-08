@@ -17,11 +17,7 @@ public class GetAllTaskListsQueryHandler : IRequestHandler<GetAllTaskListsQuery,
     {
         _taskListRepository = taskListRepository;
     }
-    public async Task<IEnumerable<TaskList>?> Handle(GetAllTaskListsQuery request, CancellationToken cancellationToken)
-    {
-        IEnumerable<TaskList>? taskLists = await _taskListRepository
-            .GetAll();
-        return taskLists;
-        
-    }
+    public async Task<IEnumerable<TaskList>?> Handle(GetAllTaskListsQuery query, CancellationToken cancellationToken)
+        => await _taskListRepository
+            .GetAllAsync();
 }

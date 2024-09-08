@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using MapsterMapper;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using TaskManagerAPI.Api.Middlewares;
 
@@ -13,8 +14,8 @@ public static class DependencyInjectionRegister
     {
         services.AddTransient<ExceptionHandlingMiddleware>();
         services.AddControllers()
-            .AddNewtonsoftJson(x =>
-                x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            .AddNewtonsoftJson(opt =>
+                opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(swagger =>
@@ -26,7 +27,7 @@ public static class DependencyInjectionRegister
                 Description = "Web API for managing tasks."
             });
 
-            swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            swagger.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme()
             {
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
@@ -35,20 +36,7 @@ public static class DependencyInjectionRegister
                 In = ParameterLocation.Header,
                 Description = "Type Bearer [space] followed by the JWT Token in the input bellow"
             });
-            swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
+            swagger.OperationFilter<SecurityRequirementsOperationFilter>();
         });
 
         services.AddMappings();

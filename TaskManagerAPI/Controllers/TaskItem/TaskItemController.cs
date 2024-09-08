@@ -1,8 +1,8 @@
 ﻿using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagerAPI.Api.Controllers.Common;
-using TaskManagerAPI.Api.Helpers;
 using TaskManagerAPI.Application.Commands;
 using TaskManagerAPI.Application.Queries;
 using TaskManagerAPI.Contracts.HTTP;
@@ -42,14 +42,24 @@ public sealed class TaskItemController : TaskManagerApiController
         return StatusCode(StatusCodes.Status200OK, response);
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("update-taskitem")]
     public async Task<ActionResult<TaskItemResponse>> UpdateTaskItem(UpdateTaskItemRequest request)
     {
-        UpdateTaskItemCommand command = new(request.Id, request.Description, request.IsDone);
+        UpdateTaskItemCommand command = new(request.Id, request.Description);
         TaskItem? commandResult = await _mediator.Send(command);
         TaskItemResponse response = _mapper.Map<TaskItemResponse>(commandResult!);
         return StatusCode(StatusCodes.Status200OK, response);
+    }
+
+    [HttpPatch]
+    [Route("update-taskitem-status")]
+    public async Task<ActionResult<TaskItemResponse>> UpdateTaskItemStatus(UpdateTaskItemStatusRequest request) 
+    {
+        UpdateTaskItemStatusCommand command = new(request.Id, request.IsDone);
+        TaskItem? commandResult = await _mediator.Send(command);
+        TaskItemResponse response = _mapper.Map<TaskItemResponse>(commandResult!);
+        return StatusCode(StatusCodes.Status200OK, response);    
     }
 
     [HttpDelete]

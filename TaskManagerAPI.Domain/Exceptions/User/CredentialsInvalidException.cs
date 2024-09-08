@@ -7,7 +7,7 @@ using TaskManagerAPI.Domain.Exceptions.BaseExceptions;
 
 namespace TaskManagerAPI.Domain.Exceptions;
 
-public class WrongCredentialsException : NotFoundException
+public class CredentialsInvalidException : NotFoundException
 {
-    public WrongCredentialsException(string message) : base(message) { }
+    public CredentialsInvalidException(string message) : base(message) { }
 }

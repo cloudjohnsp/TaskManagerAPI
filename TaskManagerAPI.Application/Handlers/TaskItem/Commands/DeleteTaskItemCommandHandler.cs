@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
+using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Application.Handlers.Commands;
@@ -18,9 +20,11 @@ public sealed class DeleteTaskItemCommandHandler : IRequestHandler<DeleteTaskIte
         _taskItemRepository = taskItemRepository;
     }
 
-    public async Task<Task> Handle(DeleteTaskItemCommand request, CancellationToken cancellationToken)
+    public async Task<Task> Handle(DeleteTaskItemCommand command, CancellationToken cancellationToken)
     {
-        await _taskItemRepository.Delete(request.Id);
+        TaskItem? taskItem = await _taskItemRepository
+            .GetAsync(command.Id) ?? throw new TaskItemNotFoundException(command.Id);
+        _taskItemRepository.DeleteAsync(taskItem);
         return Task.CompletedTask;
     }
 }

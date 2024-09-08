@@ -14,61 +14,37 @@ public class TaskListRepository : ITaskListRepository
         _dbContext = context;
     }
 
-    public async Task<TaskList> Create(TaskList taskList)
+    public async Task CreateAsync(TaskList taskList)
     {
-        var result = await _dbContext.TaskLists
+        await _dbContext.TaskLists
             .AddAsync(taskList);
-
         await _dbContext
             .SaveChangesAsync();
-        return result.Entity;
     }
 
-    public async Task<TaskList?> Get(string id)
-    {
-        TaskList? taskList = await _dbContext.TaskLists
+    public async Task<TaskList?> GetAsync(string id) =>
+         await _dbContext.TaskLists
             .Where(task => task.Id == id)
             .Include(taskItem => taskItem.TaskItems)
             .FirstOrDefaultAsync();
 
-        return taskList ?? throw new TaskListNotFoundException(id);
-    }
 
-    public async Task<IEnumerable<TaskList>?> GetAll() =>
+    public async Task<IEnumerable<TaskList>?> GetAllAsync() =>
         await _dbContext.TaskLists
             .Include(taskList => taskList.TaskItems)
             .ToListAsync();
 
-    public async Task<TaskList?> Update(string id, string name)
+    public async Task<TaskList?> UpdateAsync(TaskList taskList, string name)
     {
-        TaskList? taskList = await _dbContext.TaskLists.FindAsync(id);
-
-        if (taskList != null)
-        {
-            taskList.Name = name;
-            taskList.LastUpdatedAt = DateTime.Now;
-            _dbContext.Entry(taskList).State = EntityState.Modified;
-
-            await _dbContext.SaveChangesAsync();
-            return taskList;
-        }
-
-        throw new TaskListNotFoundException(id);
+        taskList.Name = name;
+        taskList.LastUpdatedAt = DateTime.Now;
+        await _dbContext.SaveChangesAsync();
+        return taskList;
     }
 
-    public async Task Delete(string id)
+    public void DeleteAsync(TaskList taskList)
     {
-
-        TaskList? taskList = await _dbContext.TaskLists
-            .FindAsync(id);
-
-        if (taskList != null)
-        {
-            _dbContext.TaskLists.Remove(taskList);
-            _dbContext.SaveChanges();
-            return;
-        }
-
-        throw new TaskListNotFoundException(id);
+        _dbContext.TaskLists.Remove(taskList);
+        _dbContext.SaveChanges();
     }
 }

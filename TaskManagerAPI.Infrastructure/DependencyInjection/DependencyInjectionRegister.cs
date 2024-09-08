@@ -1,6 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TaskManagerAPI.Infrastructure.Auth;
 using TaskManagerAPI.Infrastructure.Persistence.EntityFramework.Contexts;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
@@ -32,7 +36,25 @@ public static class DependencyInjectionRegister
 
     public static IServiceCollection AddAuth(this IServiceCollection services, ConfigurationManager configuration)
     {
-        return services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"))
-            .AddScoped<IJwtConfig, JwtConfig>();
+        JwtSettings jwtSettings = new();
+        configuration.Bind(JwtSettings.SectionName, jwtSettings);
+
+        services.AddSingleton(Options.Create(jwtSettings));
+        services.AddSingleton<IJwtGenerator, JwtGenerator>();
+
+        services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
+             .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+             {
+                 ValidateIssuer = true,
+                 ValidateAudience = true,
+                 ValidateLifetime = true,
+                 ValidateIssuerSigningKey = true,
+                 ValidIssuer = jwtSettings.Issuer,
+                 ValidAudience = jwtSettings.Audience,
+                 IssuerSigningKey = new SymmetricSecurityKey(
+                     Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"]!))
+             });
+
+        return services;
     }
 }

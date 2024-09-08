@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace TaskManagerAPI.Contracts.HTTP;
 
-public sealed record AuthenticationResponse
+public record UpdateTaskItemStatusRequest 
 (
     string Id,
-    string NickName,
-    string Token
+    bool IsDone
 );

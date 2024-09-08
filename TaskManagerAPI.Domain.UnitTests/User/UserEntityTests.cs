@@ -11,14 +11,16 @@ namespace TaskManagerAPI.Domain.UnitTests;
 public class UserEntityTests
 {
     [Fact]
-    public void CreateMethod_Returns_ANewUserEntity()
+    public void Create_Returns_ANewUserEntity()
     {
         // Arrange
         // Act
-        User result = User.Create("john_doe", "Password@01234");
+        User result = User.Create("john_doe", "Password@1234", "Common");
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<User>();
         result.NickName.Should().Be("john_doe");
+        result.Password.Should().Be("Password@1234");
+        result.Role.Should().Be("Common");
     }
 }

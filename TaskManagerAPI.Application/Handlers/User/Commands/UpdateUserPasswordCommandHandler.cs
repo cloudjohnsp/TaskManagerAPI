@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BC = BCrypt.Net.BCrypt;
 using TaskManagerAPI.Application.Commands;
+using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Application.Handlers;
@@ -14,13 +17,16 @@ public sealed class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUse
     private readonly IUserRepository _userRepository;
 
     public UpdateUserPasswordCommandHandler(IUserRepository userRepository)
-    { 
+    {
         _userRepository = userRepository;
     }
 
-    public async Task<Task> Handle(UpdateUserPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Task> Handle(UpdateUserPasswordCommand command, CancellationToken cancellationToken)
     {
-        await _userRepository.UpdatePassword(request.Id, request.Password);
+        User? user = await _userRepository
+            .GetAsync(command.Id) ?? throw new UserNotFoundException(command.Id);
+        await _userRepository
+            .UpdatePasswordAsync(user, BC.HashPassword(command.Password));
         return Task.CompletedTask;
     }
 }

@@ -21,8 +21,12 @@ public sealed class UpdateUserNickNameCommandHandler : IRequestHandler<UpdateUse
         _userRepository = userRepository;
     }
 
-    public async Task<User?> Handle(UpdateUserNickNameCommand request, CancellationToken cancellationToken)
+    public async Task<User?> Handle(UpdateUserNickNameCommand command, CancellationToken cancellationToken)
     {
-        return await _userRepository.UpdateNickName(request.Id, request.NickName);
+        User? user = await _userRepository.GetAsync(command.Id);
+        return user == null
+            ? throw new UserNotFoundException(command.Id)
+            : await _userRepository
+            .UpdateNickNameAsync(user, command.NickName);
     }
 }

@@ -1,11 +1,14 @@
 ﻿using MediatR;
+using BC = BCrypt.Net.BCrypt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Domain.Entities;
+using TaskManagerAPI.Domain.Exceptions;
 using TaskManagerAPI.Infrastructure.Persistence.Repositories;
+using TaskManagerAPI.Contracts;
 
 namespace TaskManagerAPI.Application.Commands;
 
@@ -18,9 +21,20 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         _userRepository = userRepository;
     }
 
-    public async Task<User> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<User> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        User user = User.Create(request.NickName, request.Password);
-        return await _userRepository.Create(user);
+        User? userExists = await _userRepository
+            .GetByNickNameAsync(command.NickName);
+
+        if (userExists is not null)
+        {
+            throw new UserConflictException(command.NickName);
+        }
+
+        User user = User.Create(command.NickName, BC.HashPassword(command.Password), command.Role);
+        await _userRepository.CreateAsync(user);
+        User? result = await _userRepository.GetAsync(user.Id);
+
+        return result ?? throw new UserNotFoundException(user.Id);
     }
 }

@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace TaskManagerAPI.Contracts.HTTP;
 
-public sealed record CreateUserRequest
+public record LoginResponse
 (
+    string Id,
     string NickName,
-    string Password,
-    string Role
+    string Role,
+    string Token
 );

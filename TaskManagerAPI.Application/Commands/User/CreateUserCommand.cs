@@ -11,5 +11,6 @@ namespace TaskManagerAPI.Application.Commands;
 public sealed record CreateUserCommand
 (
     string NickName,
-    string Password
+    string Password,
+    string Role
 ): IRequest<User>;

@@ -9,10 +9,10 @@ namespace TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 public interface IUserRepository
 {
-    Task<User> Create(User user);
-    Task<User?> Get(string id);
-    Task<User?> GetByUserCredentials(string nickName, string password);
-    Task<User?> UpdateNickName(string id, string nickName);
-    Task UpdatePassword(string id, string password);
-    Task Delete(string id);
+    Task CreateAsync(User user);
+    Task<User?> GetAsync(string id);
+    Task<User?> GetByNickNameAsync(string nickName);
+    Task<User> UpdateNickNameAsync(User user, string nickName);
+    Task UpdatePasswordAsync(User user, string password);
+    void DeleteAsync(User user);
 }
