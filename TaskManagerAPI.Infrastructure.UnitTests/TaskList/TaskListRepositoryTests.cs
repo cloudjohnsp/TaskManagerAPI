@@ -25,7 +25,7 @@ public sealed class TaskListRepositoryTests : IDisposable
     {
         _dbContextMock = new Mock<TaskManagerContext>();
         _taskListDbSetMock = new Mock<DbSet<TaskList>>();
-        _inMemoryContext = InMemoryDatabase.GetInMemoryDbContext();
+        _inMemoryContext = InMemoryDatabase.GetInMemoryDbContext("TaskListTestDB");
         _inMemoryRepository = new TaskListRepository(_inMemoryContext);
         _mockRepository = new TaskListRepository(_dbContextMock.Object);
         _dbContextMock.Setup(m => m.TaskLists).Returns(_taskListDbSetMock.Object);
@@ -57,7 +57,7 @@ public sealed class TaskListRepositoryTests : IDisposable
         InMemoryDatabase.InitializeDatabase(_inMemoryContext);
 
         // Arrange
-        var taskListId = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a";
+        var taskListId = "eb1c5b8b-a26c-4551-a9d6-b6943ad8b50a";
         var taskList = new TaskList
         {
             Id = taskListId,
@@ -65,8 +65,8 @@ public sealed class TaskListRepositoryTests : IDisposable
             TaskItems = []
         };
 
-        _inMemoryContext.TaskLists.Add(taskList);
-        _inMemoryContext.SaveChanges();
+        await _inMemoryContext.TaskLists.AddAsync(taskList);
+        await _inMemoryContext.SaveChangesAsync();
 
         // Act
         TaskList? result = await _inMemoryRepository.GetAsync(taskListId);
@@ -84,15 +84,16 @@ public sealed class TaskListRepositoryTests : IDisposable
         InMemoryDatabase.InitializeDatabase(_inMemoryContext);
 
         // Arrange
-        var taskLists = new List<TaskList>() 
+        var taskLists = new List<TaskList>()
         {
            TaskList.Create("Gym Tasks", Guid.NewGuid().ToString()),
            TaskList.Create("School Tasks", Guid.NewGuid().ToString()),
            TaskList.Create("Vacation Tasks", Guid.NewGuid().ToString())
         };
 
-        _inMemoryContext.TaskLists.AddRange(taskLists);
-        _inMemoryContext.SaveChanges();
+        await _inMemoryContext.TaskLists.AddRangeAsync(taskLists);
+        await _inMemoryContext.SaveChangesAsync();
+
 
         // Act
         IEnumerable<TaskList>? result = await _inMemoryRepository.GetAllAsync();
@@ -142,9 +143,9 @@ public sealed class TaskListRepositoryTests : IDisposable
             .SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
-        _inMemoryContext.Database.EnsureDeleted();
-        _inMemoryContext.Dispose();
+        await _inMemoryContext.Database.EnsureDeletedAsync();
+        await _inMemoryContext.DisposeAsync();
     }
 }

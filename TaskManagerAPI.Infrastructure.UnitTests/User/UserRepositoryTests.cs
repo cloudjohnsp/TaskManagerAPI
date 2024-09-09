@@ -26,7 +26,7 @@ public sealed class UserRepositoryTests : IDisposable
         _userDbSetMock = new Mock<DbSet<User>>();
         _dbContextMock.Setup(m => m.Users).Returns(_userDbSetMock.Object);
         _mockRepository = new UserRepository(_dbContextMock.Object);
-        _inMemoryContext = InMemoryDatabase.GetInMemoryDbContext();
+        _inMemoryContext = InMemoryDatabase.GetInMemoryDbContext("UserTestDB");
         _InMemoryRepository = new UserRepository(_inMemoryContext);
     }
 
@@ -62,12 +62,13 @@ public sealed class UserRepositoryTests : IDisposable
     public async Task GetAsync_ShouldReturnUser_WhenUserExists()
     {
         InMemoryDatabase.InitializeDatabase(_inMemoryContext);
-        // Arrange
-        var userId = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a";
-        var user = new User { Id = userId, NickName = "test_user" };
 
-        _inMemoryContext.Users.Add(user);
-        _inMemoryContext.SaveChanges();
+        // Arrange
+        var userId = "ev1c5b8b-a26c-4551-a9d6-b6843ad9b50a";
+        var user = new User { Id = userId, NickName = "test" };
+
+        await _inMemoryContext.Users.AddAsync(user);
+        await _inMemoryContext.SaveChangesAsync();
 
         // Act
         var result = await _InMemoryRepository.GetAsync(userId);
@@ -85,8 +86,8 @@ public sealed class UserRepositoryTests : IDisposable
 
         var users = User.Create("john_doe", "Pass@1234", "Common");
         // Arrange
-        _inMemoryContext.Users.Add(users);
-        _inMemoryContext.SaveChanges();
+        await _inMemoryContext.Users.AddAsync(users);
+        await _inMemoryContext.SaveChangesAsync();
 
         // Act
         var result = await _InMemoryRepository.GetByNickNameAsync("john_doe");
@@ -131,9 +132,9 @@ public sealed class UserRepositoryTests : IDisposable
         _dbContextMock.Verify(x => x.SaveChangesAsync(default), Times.Once);
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
-        _inMemoryContext.Database.EnsureDeleted();
-        _inMemoryContext.Dispose();
+        await _inMemoryContext.Database.EnsureDeletedAsync();
+        await _inMemoryContext.DisposeAsync();
     }
 }

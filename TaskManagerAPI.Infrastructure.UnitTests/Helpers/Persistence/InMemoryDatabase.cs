@@ -11,10 +11,10 @@ namespace TaskManagerAPI.Infrastructure.UnitTests;
 public class InMemoryDatabase
 {
 
-    public static TaskManagerContext GetInMemoryDbContext()
+    public static TaskManagerContext GetInMemoryDbContext(string databaseName)
     {
         var options = new DbContextOptionsBuilder<TaskManagerContext>()
-            .UseInMemoryDatabase(databaseName: "TaskManagerTestDb")
+            .UseInMemoryDatabase(databaseName: databaseName)
             .Options;
 
         return new TaskManagerContext(options);
