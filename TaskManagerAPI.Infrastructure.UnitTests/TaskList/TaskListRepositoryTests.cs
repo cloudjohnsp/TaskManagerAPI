@@ -13,28 +13,22 @@ using TaskManagerAPI.Infrastructure.Persistence.Repositories;
 
 namespace TaskManagerAPI.Infrastructure.UnitTests;
 
-public class TaskListRepositoryTests
+public sealed class TaskListRepositoryTests : IDisposable
 {
     private readonly Mock<TaskManagerContext> _dbContextMock;
+    private readonly TaskManagerContext _inMemoryContext;
     private readonly Mock<DbSet<TaskList>> _taskListDbSetMock;
+    private readonly TaskListRepository _inMemoryRepository;
     private readonly TaskListRepository _mockRepository;
 
     public TaskListRepositoryTests()
     {
         _dbContextMock = new Mock<TaskManagerContext>();
         _taskListDbSetMock = new Mock<DbSet<TaskList>>();
+        _inMemoryContext = InMemoryDatabase.GetInMemoryDbContext();
+        _inMemoryRepository = new TaskListRepository(_inMemoryContext);
         _mockRepository = new TaskListRepository(_dbContextMock.Object);
         _dbContextMock.Setup(m => m.TaskLists).Returns(_taskListDbSetMock.Object);
-    }
-
-
-    private TaskManagerContext GetInMemoryDbContext()
-    {
-        var options = new DbContextOptionsBuilder<TaskManagerContext>()
-            .UseInMemoryDatabase(databaseName: "TaskManagerTestDb")
-            .Options;
-
-        return new TaskManagerContext(options);
     }
 
     [Fact]
@@ -60,6 +54,8 @@ public class TaskListRepositoryTests
     [Fact]
     public async Task GetAsync_ShouldReturnTaskList_WhenTaskListExists()
     {
+        InMemoryDatabase.InitializeDatabase(_inMemoryContext);
+
         // Arrange
         var taskListId = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a";
         var taskList = new TaskList
@@ -69,14 +65,11 @@ public class TaskListRepositoryTests
             TaskItems = []
         };
 
-        using var context = GetInMemoryDbContext();
-        context.TaskLists.Add(taskList);
-        context.SaveChanges();
-
-        var repository = new TaskListRepository(context);
+        _inMemoryContext.TaskLists.Add(taskList);
+        _inMemoryContext.SaveChanges();
 
         // Act
-        TaskList? result = await repository.GetAsync(taskListId);
+        TaskList? result = await _inMemoryRepository.GetAsync(taskListId);
 
         // Assert
         result.Should().NotBeNull();
@@ -88,6 +81,8 @@ public class TaskListRepositoryTests
     [Fact]
     public async Task GetAllAsync_ShouldReturnAllTaskLists_WhenAnyTaskListExists()
     {
+        InMemoryDatabase.InitializeDatabase(_inMemoryContext);
+
         // Arrange
         var taskLists = new List<TaskList>() 
         {
@@ -96,14 +91,11 @@ public class TaskListRepositoryTests
            TaskList.Create("Vacation Tasks", Guid.NewGuid().ToString())
         };
 
-        using var context = GetInMemoryDbContext();
-        context.TaskLists.AddRange(taskLists);
-        context.SaveChanges();
-
-        var repository = new TaskListRepository(context);
+        _inMemoryContext.TaskLists.AddRange(taskLists);
+        _inMemoryContext.SaveChanges();
 
         // Act
-        IEnumerable<TaskList>? result = await repository.GetAllAsync();
+        IEnumerable<TaskList>? result = await _inMemoryRepository.GetAllAsync();
 
         // Assert
         result.Should().NotBeEmpty();
@@ -150,4 +142,9 @@ public class TaskListRepositoryTests
             .SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    public void Dispose()
+    {
+        _inMemoryContext.Database.EnsureDeleted();
+        _inMemoryContext.Dispose();
+    }
 }
