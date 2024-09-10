@@ -31,13 +31,13 @@ public sealed class UserRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldAddUserAndSaveChanges()
+    public void CreateAsync_ShouldAddUserAndSaveChanges()
     {
         // Arrange
         var user = new User { Id = "eb1c5b8b-a26c-4551-a9d6-b6943ad9b50a", NickName = "test_user" };
 
         // Act
-        await _mockRepository.CreateAsync(user);
+        _mockRepository.CreateAsync(user);
 
         // Assert
         _userDbSetMock.Verify(x => x.AddAsync(user, default), Times.Once);
@@ -116,7 +116,7 @@ public sealed class UserRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task UpdatePasswordAsync_ShouldUpdatePasswordAndSaveChanges()
+    public void UpdatePasswordAsync_ShouldUpdatePasswordAndSaveChanges()
     {
 
         // Arrange
@@ -125,7 +125,7 @@ public sealed class UserRepositoryTests : IDisposable
         var newPassword = "new_password";
 
         // Act
-        await _mockRepository.UpdatePasswordAsync(user, newPassword);
+        _mockRepository.UpdatePasswordAsync(user, newPassword);
 
         // Assert
         user.Password.Should().Be(newPassword);

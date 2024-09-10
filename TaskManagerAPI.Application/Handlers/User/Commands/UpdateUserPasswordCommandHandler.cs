@@ -25,8 +25,7 @@ public sealed class UpdateUserPasswordCommandHandler : IRequestHandler<UpdateUse
     {
         User? user = await _userRepository
             .GetAsync(command.Id) ?? throw new UserNotFoundException(command.Id);
-        await _userRepository
-            .UpdatePasswordAsync(user, BC.HashPassword(command.Password));
+        _userRepository.UpdatePasswordAsync(user, BC.HashPassword(command.Password));
         return Task.CompletedTask;
     }
 }

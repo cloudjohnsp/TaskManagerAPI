@@ -18,7 +18,7 @@ public class UserRepository : IUserRepository
     public UserRepository(TaskManagerContext dbContext)
         => _dbContext = dbContext;
 
-    public async Task CreateAsync(User user)
+    public async void CreateAsync(User user)
     {
         await _dbContext.Users
             .AddAsync(user);
@@ -54,7 +54,7 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task UpdatePasswordAsync(User user, string password)
+    public async void UpdatePasswordAsync(User user, string password)
     {
         user.Password = password;
         user.LastUpdatedAt = DateTime.Now;

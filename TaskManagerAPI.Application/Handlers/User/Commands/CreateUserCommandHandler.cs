@@ -12,7 +12,7 @@ using TaskManagerAPI.Contracts;
 
 namespace TaskManagerAPI.Application.Commands;
 
-public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, User>
+public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, User>
 {
     private readonly IUserRepository _userRepository;
 
@@ -32,7 +32,7 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         }
 
         User user = User.Create(command.NickName, BC.HashPassword(command.Password), command.Role);
-        await _userRepository.CreateAsync(user);
+        _userRepository.CreateAsync(user);
         User? result = await _userRepository.GetAsync(user.Id);
 
         return result ?? throw new UserNotFoundException(user.Id);

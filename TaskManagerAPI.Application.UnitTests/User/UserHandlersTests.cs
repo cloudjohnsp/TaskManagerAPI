@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using BC = BCrypt.Net.BCrypt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
@@ -17,94 +19,141 @@ namespace TaskManagerAPI.Application.UnitTests;
 
 public class UserHandlersTests
 {
-    //private readonly Mock<IUserRepository> _userRepositoryMock;
-    //private readonly User _user = null!;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
 
-    //public UserHandlersTests()
-    //{
-    //    _userRepositoryMock = new Mock<IUserRepository>();
-    //    _user = User.Create("john_doe", "Password#1090", "User");
-    //}
+    public UserHandlersTests()
+    {
+        _userRepositoryMock = new Mock<IUserRepository>();
+    }
 
-    ////[Fact]
-    ////public async void Create_Returns_User()
-    ////{
-        
-    ////}
+    [Fact]
+    public async void Create_Returns_User()
+    {
+        // Arrange
+        var command = new CreateUserCommand
+        (
+            "new_user",
+            "password123",
+            "Common"
+        );
 
-    //[Fact]
-    //public async void Get_Returns_User()
-    //{
-    //    // Arrange
-    //    _userRepositoryMock.Setup(x => x.GetAsync(It.IsAny<string>()))
-    //        .Returns(Task.FromResult((User?)_user));
+        _userRepositoryMock.Setup(repo => repo.GetByNickNameAsync(It.IsAny<string>()))
+            .ReturnsAsync((User?)null);
 
-    //    var query = new GetUserQuery(_user.Id);
-    //    var handler = new GetUserQueryHandler(_userRepositoryMock.Object);
-    //    // Act
-    //    User? result = await handler.Handle(query, CancellationToken.None);
-    //    // Assert
-    //    result.Should().NotBeNull();
-    //    result.Should().BeOfType<User>();
-    //    result?.NickName.Should().Be("john_doe");
-    //}
+        _userRepositoryMock.Setup(repo => repo.CreateAsync(It.IsAny<User>()))
+            .Verifiable();
 
-    //[Fact]
-    //public async void UpdateNickName_Returns_UpdatedUser()
-    //{
-    //    // Arrange
-    //    var updatedUser = User.Create("jane_doe", "Password#1090", "User");
-    //    updatedUser.Id = _user.Id;
-    //    updatedUser.CreatedAt = _user.CreatedAt;
-    //    updatedUser.LastUpdatedAt = _user.LastUpdatedAt;
+        var createdUser = User.Create(command.NickName, BC.HashPassword(command.Password), command.Role);
+        _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<string>()))
+            .ReturnsAsync(createdUser);
 
-    //    _userRepositoryMock
-    //        .Setup(x => x.UpdateNickNameAsync(It.IsAny<string>(), It.IsAny<string>()))
-    //        .Returns(Task.FromResult((User?)updatedUser));
+        var handler = new CreateUserCommandHandler(_userRepositoryMock.Object);
 
-    //    UpdateUserNickNameCommand command = new(_user.Id, updatedUser.NickName);
-    //    UpdateUserNickNameCommandHandler handler = new(_userRepositoryMock.Object);
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
 
-    //    // Act
-    //    User? result = await handler.Handle(command, CancellationToken.None);
+        // Assert
+        result.Should().NotBeNull();
+        result.NickName.Should().Be(command.NickName);
+        _userRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<User>()), Times.Once);
+    }
 
-    //    // Assert
-    //    result.Should().NotBeNull();
-    //    result.Should().BeOfType<User>();
-    //    result?.NickName.Should().Be("jane_doe");
-    //}
+    [Fact]
+    public async void Get_Returns_UserWhenUserExists()
+    {
+        // Arrange
+        var user = User.Create("john_doe", "Pass@1234", "Common");
 
-    //[Fact]
-    //public async void Delete_Returns_Nothing()
-    //{
-    //    // Arrange
-    //    _userRepositoryMock
-    //        .Setup(x => x.DeleteAsync(It.IsAny<string>()))
-    //        .Returns(Task.CompletedTask);
+        _userRepositoryMock.Setup(x => x.GetAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult((User?)user));
 
-    //    DeleteUserCommand command = new(_user.Id);
-    //    DeleteUserCommandHandler handler = new(_userRepositoryMock.Object);
-    //    // Act
-    //    var result = await handler.Handle(command, CancellationToken.None);
+        var query = new GetUserQuery(user.Id);
+        var handler = new GetUserQueryHandler(_userRepositoryMock.Object);
+        // Act
+        User? result = await handler.Handle(query, CancellationToken.None);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<User>();
+        result?.NickName.Should().Be("john_doe");
+    }
 
-    //    // Assert
-    //    result.Should().Be(Task.CompletedTask);
-    //}
+    [Fact]
+    public async void UpdateNickName_Returns_UpdatedUserWhenUserExists()
+    {
+        // Arrange
+        var updatedUser = User.Create("jane_doe", "Password#1090", "Common");
+        string newNickName = "jannet_doe";
 
-    //[Fact]
-    //public async void UpdatePassword_Returns_Nothing()
-    //{
-    //    // Arrange
-    //    _userRepositoryMock
-    //        .Setup(x => x.UpdatePasswordAsync(It.IsAny<string>(), It.IsAny<string>()))
-    //        .Returns(Task.CompletedTask);
+        _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<string>()))
+            .ReturnsAsync((User?)updatedUser);
 
-    //    UpdateUserPasswordCommand command = new(_user.Id, "Password@01234");
-    //    UpdateUserPasswordCommandHandler handler = new(_userRepositoryMock.Object);
-    //    // Act
-    //    var result = await handler.Handle(command, CancellationToken.None);
+        updatedUser.NickName = newNickName;
 
-    //    // Assert
-    //    result.Should().Be(Task.CompletedTask);
-    //}
+        _userRepositoryMock
+            .Setup(x => x.UpdateNickNameAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(updatedUser);
+
+
+        UpdateUserNickNameCommand command = new(updatedUser.Id, newNickName);
+        UpdateUserNickNameCommandHandler handler = new(_userRepositoryMock.Object);
+
+        // Act
+        User? result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<User>();
+        result?.NickName.Should().Be("jannet_doe");
+    }
+
+    [Fact]
+    public async void Delete_Returns_NothingWhenUserIsDeleted()
+    {
+        // Arrange
+        var deletedUser = User.Create("jane_doe", "Password#1090", "Common");
+
+        _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<string>()))
+            .ReturnsAsync((User?)deletedUser);
+
+        _userRepositoryMock
+            .Setup(x => x.DeleteAsync(It.IsAny<User>()))
+            .Verifiable();
+
+        DeleteUserCommand command = new(deletedUser.Id);
+
+        DeleteUserCommandHandler handler = new(_userRepositoryMock.Object);
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        _userRepositoryMock
+            .Verify(x => x.DeleteAsync(It.IsAny<User>()), Times.Once);
+    }
+
+    [Fact]
+    public async void UpdatePassword_Returns_NothingWhenUpdated()
+    {
+        // Arrange
+        var updatedUser = User.Create("jane_doe", "Password#1090", "Common");
+
+        _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<string>()))
+            .ReturnsAsync((User?)updatedUser);
+
+        _userRepositoryMock
+            .Setup(x => x.UpdatePasswordAsync(It.IsAny<User>(), It.IsAny<string>()))
+            .Verifiable();
+
+        UpdateUserPasswordCommand command = new(updatedUser.Id, "Password@01234");
+
+        UpdateUserPasswordCommandHandler handler = new(_userRepositoryMock.Object);
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        _userRepositoryMock
+            .Verify(x => x
+            .UpdatePasswordAsync(It.IsAny<User>(), It.IsAny<string>()),
+                Times.Once
+            );
+    }
 }
