@@ -27,7 +27,7 @@ public class UserHandlersTests
     }
 
     [Fact]
-    public async void Create_Returns_User()
+    public async void CreateUserCommandHandler_Returns_User()
     {
         // Arrange
         var command = new CreateUserCommand
@@ -59,7 +59,7 @@ public class UserHandlersTests
     }
 
     [Fact]
-    public async void Get_Returns_UserWhenUserExists()
+    public async void GetUserCommandHandler_Returns_UserWhenUserExists()
     {
         // Arrange
         var user = User.Create("john_doe", "Pass@1234", "Common");
@@ -78,7 +78,7 @@ public class UserHandlersTests
     }
 
     [Fact]
-    public async void UpdateNickName_Returns_UpdatedUserWhenUserExists()
+    public async void UpdateUserNickNameCommandHandler_Returns_UpdatedUserWhenUserExists()
     {
         // Arrange
         var updatedUser = User.Create("jane_doe", "Password#1090", "Common");
@@ -87,27 +87,26 @@ public class UserHandlersTests
         _userRepositoryMock.Setup(repo => repo.GetAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)updatedUser);
 
-        updatedUser.NickName = newNickName;
-
         _userRepositoryMock
             .Setup(x => x.UpdateNickNameAsync(It.IsAny<User>(), It.IsAny<string>()))
             .ReturnsAsync(updatedUser);
 
+        updatedUser.NickName = newNickName;
 
         UpdateUserNickNameCommand command = new(updatedUser.Id, newNickName);
         UpdateUserNickNameCommandHandler handler = new(_userRepositoryMock.Object);
 
         // Act
-        User? result = await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<User>();
-        result?.NickName.Should().Be("jannet_doe");
+        result?.NickName.Should().Be(newNickName);
     }
 
     [Fact]
-    public async void Delete_Returns_NothingWhenUserIsDeleted()
+    public async void DeleteUserCommandHandler_Returns_NothingWhenUserIsDeleted()
     {
         // Arrange
         var deletedUser = User.Create("jane_doe", "Password#1090", "Common");
@@ -123,7 +122,7 @@ public class UserHandlersTests
 
         DeleteUserCommandHandler handler = new(_userRepositoryMock.Object);
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
         _userRepositoryMock
@@ -131,7 +130,7 @@ public class UserHandlersTests
     }
 
     [Fact]
-    public async void UpdatePassword_Returns_NothingWhenUpdated()
+    public async void UpdateUserPasswordCommandHandler_Returns_NothingWhenUpdated()
     {
         // Arrange
         var updatedUser = User.Create("jane_doe", "Password#1090", "Common");
@@ -147,7 +146,7 @@ public class UserHandlersTests
 
         UpdateUserPasswordCommandHandler handler = new(_userRepositoryMock.Object);
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
         _userRepositoryMock

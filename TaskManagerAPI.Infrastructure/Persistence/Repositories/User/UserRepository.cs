@@ -31,14 +31,13 @@ public class UserRepository : IUserRepository
         _dbContext.SaveChanges();
     }
 
-    public async Task<User?> GetAsync(string id)
-    {
-        return await _dbContext.Users
+    public async Task<User?> GetAsync(string id) =>
+        await _dbContext.Users
             .Where(u => u.Id == id)
             .Include(t => t.TasksLists)
             .ThenInclude(x => x.TaskItems)
             .FirstOrDefaultAsync();
-    }
+
 
     public async Task<User?> GetByNickNameAsync(string nickName)
     {
