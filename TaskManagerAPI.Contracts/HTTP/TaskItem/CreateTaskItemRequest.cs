@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaskManagerAPI.Contracts.HTTP;
 
-public record TaskItemRequest
+public record CreateTaskItemRequest
 (
     string Description,
     string TaskListId

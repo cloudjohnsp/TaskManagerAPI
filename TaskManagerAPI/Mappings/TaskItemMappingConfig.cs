@@ -9,7 +9,7 @@ public sealed class TaskItemMappingConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<TaskItemRequest, CreateTaskItemCommand>();
+        config.NewConfig<CreateTaskItemRequest, CreateTaskItemCommand>();
         config.NewConfig<TaskItem, TaskItemResponse>();
     }
 }

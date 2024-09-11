@@ -24,7 +24,7 @@ public sealed class TaskItemController : TaskManagerApiController
 
     [HttpPost]
     [Route("create-taskitem")]
-    public async Task<ActionResult<TaskItemResponse>> CreateTaskItem(TaskItemRequest request)
+    public async Task<ActionResult<TaskItemResponse>> CreateTaskItem(CreateTaskItemRequest request)
     {
         CreateTaskItemCommand command = _mapper.Map<CreateTaskItemCommand>(request);
         TaskItem commandResult = await _mediator.Send(command);
