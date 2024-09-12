@@ -19,7 +19,7 @@ public class UserEntityTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<User>();
-        result.NickName.Should().Be("john_de");
+        result.NickName.Should().Be("john_doe");
         result.Password.Should().Be("Password@1234");
         result.Role.Should().Be("Common");
     }
