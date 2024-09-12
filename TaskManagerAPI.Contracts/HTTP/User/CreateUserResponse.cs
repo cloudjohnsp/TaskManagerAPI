@@ -10,6 +10,7 @@ public sealed record CreateUserResponse
 (
     string Id,
     string NickName,
+    string Role,
     DateTime CreatedAt,
     DateTime LastUpdatedAt
 );

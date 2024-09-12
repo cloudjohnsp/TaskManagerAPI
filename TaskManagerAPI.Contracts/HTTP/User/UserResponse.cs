@@ -11,6 +11,7 @@ public sealed record UserResponse
 (
     string Id,
     string NickName,
+    string Role,
     DateTime CreatedAt,
     DateTime LastUpdatedAt,
     IEnumerable<TaskListResponse> TaskLists
