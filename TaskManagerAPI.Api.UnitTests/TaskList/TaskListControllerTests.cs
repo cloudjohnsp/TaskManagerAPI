@@ -111,7 +111,7 @@ public class TaskListControllerTests
 
         var response = new List<TaskListResponse>
         {
-            new TaskListResponse(
+            new(
                 taskLists[0].Id,
                 taskLists[0].Name,
                 taskLists[0].CreatedAt,
@@ -119,7 +119,7 @@ public class TaskListControllerTests
                 [],
                 taskLists[0].UserId
             ),
-            new TaskListResponse(
+            new(
                 taskLists[1].Id,
                 taskLists[1].Name,
                 taskLists[1].CreatedAt,
@@ -127,7 +127,7 @@ public class TaskListControllerTests
                 [],
                 taskLists[1].UserId
             ),
-            new TaskListResponse(
+            new(
                 taskLists[2].Id,
                 taskLists[2].Name,
                 taskLists[2].CreatedAt,

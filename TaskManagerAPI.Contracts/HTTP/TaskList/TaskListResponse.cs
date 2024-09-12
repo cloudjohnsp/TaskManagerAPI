@@ -12,6 +12,6 @@ public sealed record TaskListResponse
     string Name,
     DateTime CreatedAt,
     DateTime LastUpdatedAt,
-    IEnumerable<TaskItemResponse> TaskItems,
+    List<TaskItemResponse> TaskItems,
     string UserId
 );

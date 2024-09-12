@@ -30,14 +30,18 @@ public class TaskListHandlersTests
         // Arrange
         string userId = Guid.NewGuid().ToString();
         var taskList = TaskList.Create("Test Tasks", userId);
+
         _taskListRepositoryMock.Setup(x => x.CreateAsync(It.IsAny<TaskList>()))
             .Verifiable();
         _taskListRepositoryMock.Setup(x => x.GetAsync(It.IsAny<string>()))
             .Returns(Task.FromResult((TaskList?)taskList));
+
         CreateTaskListCommand command = new(taskList.Name, taskList.UserId);
         CreateTaskListCommandHandler handler = new(_taskListRepositoryMock.Object);
+
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
+
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<TaskList>();
@@ -51,13 +55,17 @@ public class TaskListHandlersTests
         // Arrange
         string userId = Guid.NewGuid().ToString();
         var taskList = TaskList.Create("Test Tasks", userId);
+
         _taskListRepositoryMock
             .Setup(x => x.GetAsync(It.IsAny<string>()))
             .Returns(Task.FromResult((TaskList?)taskList));
+
         GetTaskListQuery query = new(taskList.Id);
         GetTaskListQueryHandler handler = new(_taskListRepositoryMock.Object);
+
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
+
         // Assert
         result?.Should().NotBeNull();
         result.Should().BeOfType<TaskList>();
@@ -74,14 +82,18 @@ public class TaskListHandlersTests
             TaskList.Create("Tes Task", Guid.NewGuid().ToString()),
             TaskList.Create("Te Tas", Guid.NewGuid().ToString())
         };
+
         // Arrange
         _taskListRepositoryMock
             .Setup(x => x.GetAllAsync())
             .Returns(Task.FromResult((IEnumerable<TaskList>?)taskLists));
+
         GetAllTaskListsQuery query = new();
         GetAllTaskListsQueryHandler handler = new(_taskListRepositoryMock.Object);
+
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
+
         // Assert
         result.Should().NotBeEmpty();
         result.Should().HaveCount(3);
@@ -103,8 +115,10 @@ public class TaskListHandlersTests
 
         DeleteTaskListCommand command = new(taskList.Id);
         DeleteTaskListCommandHandler handler = new(_taskListRepositoryMock.Object);
+
         // Act
         await handler.Handle(command, CancellationToken.None);
+
         // Assert
         _taskListRepositoryMock
             .Verify(x => x.DeleteAsync(It.IsAny<TaskList>()), Times.Once);

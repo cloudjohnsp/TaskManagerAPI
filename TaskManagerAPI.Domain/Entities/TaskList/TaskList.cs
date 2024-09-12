@@ -12,7 +12,7 @@ public class TaskList : BaseEntity
     public string Name { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
-    public ICollection<TaskItem> TaskItems { get; set; } = [];
+    public List<TaskItem> TaskItems { get; set; } = [];
     public string UserId { get; set; } = string.Empty;
     [JsonIgnore]
     public User User { get; set; } = null!;

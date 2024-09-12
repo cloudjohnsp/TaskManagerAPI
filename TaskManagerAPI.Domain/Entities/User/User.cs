@@ -13,7 +13,7 @@ public class User : BaseEntity
     public string Role { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
-    public ICollection<TaskList> TasksLists { get; set; } = null!;
+    public List<TaskList> TasksLists { get; set; } = null!;
 
     public User()
     { }
@@ -25,7 +25,7 @@ public class User : BaseEntity
         string role,
         DateTime createdAt,
         DateTime lastUpdatedAt,
-        ICollection<TaskList> tasksLists
+        List<TaskList> tasksLists
     )
     {
         Id = id;

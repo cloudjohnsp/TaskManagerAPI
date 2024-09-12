@@ -14,5 +14,5 @@ public sealed record UserResponse
     string Role,
     DateTime CreatedAt,
     DateTime LastUpdatedAt,
-    IEnumerable<TaskListResponse> TaskLists
+    List<TaskListResponse> TaskLists
 );
