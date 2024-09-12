@@ -1,8 +1,12 @@
-name: TaskManagerAPI Pipeline
+name: taskmanagerapi-pipeline
 
 # Trigger the workflow on push to master branch
 on:
   push:
+    branches:
+      - master
+
+  pull_request:
     branches:
       - master
 
