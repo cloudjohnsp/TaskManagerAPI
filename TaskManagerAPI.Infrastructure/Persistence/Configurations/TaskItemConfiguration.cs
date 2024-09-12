@@ -12,11 +12,19 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Id).ValueGeneratedNever();
-        builder.Property(x => x.Description).HasMaxLength(50);
-        builder.Property(x => x.IsDone).HasColumnType("BIT");
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
+
+        builder.Property(x => x.Description)
+            .HasMaxLength(50);
+
+        builder.Property(x => x.IsDone)
+            .HasColumnType("BIT");
+
         builder.Property(x => x.CreatedAt);
+
         builder.Property(x => x.LastUpdatedAt);
+
         builder.HasOne(x => x.TaskList)
             .WithMany(x => x.TaskItems)
             .HasForeignKey(x => x.TaskListId);

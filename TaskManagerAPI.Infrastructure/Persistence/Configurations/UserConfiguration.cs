@@ -16,12 +16,20 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.ToTable("users");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).ValueGeneratedNever();
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
+
         builder.Property(x => x.NickName);
+
         builder.Property(x => x.Password);
+
         builder.Property(x => x.Role);
+
         builder.Property(x => x.CreatedAt);
+
         builder.Property(x => x.LastUpdatedAt);
+
         builder.HasMany(x => x.TasksLists)
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId);
