@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -22,7 +24,9 @@ public static class DependencyInjectionRegister
 
     public static IServiceCollection AddPersistence(this IServiceCollection services, ConfigurationManager configuration)
     {
+
         string connectionString = configuration.GetConnectionString("DefaultConnection")!;
+
         return services
             .AddDbContext<TaskManagerContext>(options => options.UseSqlServer(connectionString));
     }
