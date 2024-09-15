@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TaskManagerAPI.Application.Commands;
 using TaskManagerAPI.Application.Queries;
 
-namespace TaskManagerAPI.Application.Validators;
+namespace TaskManagerAPI.Application.Validators.Queries.Auth;
 
 public sealed class LoginQueryValidator
     : AbstractValidator<LoginQuery>

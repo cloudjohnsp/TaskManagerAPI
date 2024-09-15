@@ -12,4 +12,4 @@ public record LoginQuery
 (
     string NickName,
     string Password
-): IRequest<LoginResult>;
+) : IRequest<LoginResult>;

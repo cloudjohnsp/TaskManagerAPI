@@ -16,7 +16,7 @@ using TaskManagerAPI.Application.Queries;
 
 namespace TaskManagerAPI.Application.Handlers;
 
-public sealed class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResult>
+public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResult>
 {
     private readonly IUserRepository _userRepository;
     private readonly IJwtGenerator _jwtGenerator;

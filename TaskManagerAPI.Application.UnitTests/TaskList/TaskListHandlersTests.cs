@@ -18,10 +18,12 @@ namespace TaskManagerAPI.Application.UnitTests;
 
 public class TaskListHandlersTests
 {
-    private readonly Mock<ITaskListRepository> _taskListRepositoryMock = null!;
+    private readonly Mock<ITaskListRepository> _taskListRepositoryMock;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
     public TaskListHandlersTests()
     {
         _taskListRepositoryMock = new Mock<ITaskListRepository>();
+        _userRepositoryMock = new Mock<IUserRepository>();
     }
 
     [Fact]
@@ -30,14 +32,18 @@ public class TaskListHandlersTests
         // Arrange
         string userId = Guid.NewGuid().ToString();
         var taskList = TaskList.Create("Test Tasks", userId);
+        var user = User.Create("john_doe", "Pass@1234", "Common");
+        user.Id = userId;
 
+        _userRepositoryMock.Setup(x => x.GetAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult((User?)user));
         _taskListRepositoryMock.Setup(x => x.CreateAsync(It.IsAny<TaskList>()))
             .Verifiable();
         _taskListRepositoryMock.Setup(x => x.GetAsync(It.IsAny<string>()))
             .Returns(Task.FromResult((TaskList?)taskList));
 
         CreateTaskListCommand command = new(taskList.Name, taskList.UserId);
-        CreateTaskListCommandHandler handler = new(_taskListRepositoryMock.Object);
+        CreateTaskListCommandHandler handler = new(_taskListRepositoryMock.Object, _userRepositoryMock.Object);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);

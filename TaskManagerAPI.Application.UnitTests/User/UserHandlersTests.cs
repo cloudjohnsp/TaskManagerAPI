@@ -59,7 +59,7 @@ public class UserHandlersTests
     }
 
     [Fact]
-    public async void GetUserCommandHandler_Returns_UserWhenUserExists()
+    public async void GetUserQueryHandler_Returns_UserWhenUserExists()
     {
         // Arrange
         var user = User.Create("john_doe", "Pass@1234", "Common");

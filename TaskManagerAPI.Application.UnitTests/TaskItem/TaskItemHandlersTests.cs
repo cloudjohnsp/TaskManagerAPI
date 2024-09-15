@@ -17,9 +17,11 @@ namespace TaskManagerAPI.Application.UnitTests;
 public class TaskItemHandlersTests
 {
     private readonly Mock<ITaskItemRepository> _taskItemRepository;
+    private readonly Mock<ITaskListRepository> _taskListRepository;
     public TaskItemHandlersTests()
     {
         _taskItemRepository = new Mock<ITaskItemRepository>();
+        _taskListRepository = new Mock<ITaskListRepository>();
     }
 
     [Fact]
@@ -28,13 +30,18 @@ public class TaskItemHandlersTests
         // Arrange
         string listId = Guid.NewGuid().ToString();
         var taskItem = TaskItem.Create("Test Item", listId);
+        var taskList = TaskList.Create("Test List", Guid.NewGuid().ToString());
+        taskList.Id = listId;
+
+        _taskListRepository.Setup(x => x.GetAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult((TaskList?)taskList));
         _taskItemRepository.Setup(x => x.CreateAsync(It.IsAny<TaskItem>()))
             .Verifiable();
         _taskItemRepository.Setup(x => x.GetAsync(It.IsAny<string>()))
             .Returns(Task.FromResult((TaskItem?)taskItem));
 
         CreateTaskItemCommand command = new("Test Item", listId);
-        CreateTaskItemCommandHandler handler = new(_taskItemRepository.Object);
+        CreateTaskItemCommandHandler handler = new(_taskItemRepository.Object, _taskListRepository.Object);
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
         // Assert

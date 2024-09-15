@@ -18,16 +18,16 @@ public static class DependencyInjectionRegister
                 opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         services.AddEndpointsApiExplorer();
 
-        services.AddSwaggerGen(swagger =>
+        services.AddSwaggerGen(options =>
         {
-            swagger.SwaggerDoc("v1", new OpenApiInfo
+            options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Version = "v1",
                 Title = "Task Manager API",
                 Description = "Web API for managing tasks."
             });
 
-            swagger.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme()
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme()
             {
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
@@ -36,8 +36,12 @@ public static class DependencyInjectionRegister
                 In = ParameterLocation.Header,
                 Description = "Type Bearer [space] followed by the JWT Token in the input bellow"
             });
-            swagger.OperationFilter<SecurityRequirementsOperationFilter>();
+            options.OperationFilter<SecurityRequirementsOperationFilter>();
+
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
+
 
         services.AddMappings();
 
