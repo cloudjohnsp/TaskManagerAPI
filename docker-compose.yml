@@ -10,6 +10,10 @@ services:
       - sqlserver
     environment:
       - ConnectionStrings__DefaultConnection=Server=127.0.0.1,1433;Database=taskmanagerdb;User Id=sa;Password=Password@1234;TrustServerCertificate=True;
+      - JwtSettings__Secret=super-secret-keysuper-secret-key
+      - JwtSettings__ExpiryMinutes=60
+      - JwtSettings__Issuer=TaskManager
+      - JwtSettings__Audience=TaskManager
     networks:
       - sqlserver-network
 
