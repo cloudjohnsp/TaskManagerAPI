@@ -1,0 +1,10 @@
+TaskManagerAPI.Api.UnitTests/
+TaskManagerAPI.Application.UnitTests/
+TaskManagerAPI.Domain.UnitTests/
+TaskManagerAPI.Infrastructure.UnitTests/
+
+**/bin/
+**/obj/
+
+.git/
+.vscode/
