@@ -47,4 +47,11 @@ public class TaskListRepository : ITaskListRepository
         _dbContext.TaskLists.Remove(taskList);
         _dbContext.SaveChanges();
     }
+
+    public async Task<IEnumerable<TaskList>> GetAllByUserIdAsync(string id)
+    {
+        return await _dbContext.TaskLists.Where(task => task.UserId == id)
+            .Include(taskList => taskList.TaskItems)
+            .ToListAsync();
+    }
 }

@@ -1,15 +1,14 @@
 services:
-
   webapi:
     build:
       context: .
     ports:
-      - "5009:5009"
+      - '5009:5009'
     restart: unless-stopped
     depends_on:
       - sqlserver
     environment:
-      - ConnectionStrings__DefaultConnection=Server=127.0.0.1,1433;Database=taskmanagerdb;User Id=sa;Password=Password@1234;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=taskmanagerdb;User Id=sa;Password=Password@1234;TrustServerCertificate=True;
       - JwtSettings__Secret=super-secret-keysuper-secret-key
       - JwtSettings__ExpiryMinutes=60
       - JwtSettings__Issuer=TaskManager
@@ -24,7 +23,7 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Password@1234
     ports:
-      - "1433:1433"
+      - '1433:1433'
     restart: unless-stopped
     volumes:
       - sqlserver-data:/var/opt/mssql

@@ -68,6 +68,23 @@ public class TaskListController : TaskManagerApiController
     }
 
     /// <summary>
+    /// Returns all task lists based on it's user id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <response code="200">If task lists returns.</response>
+    /// <response code="404">If no task list where found.</response>
+    [HttpGet]
+    [Route("get-all-tasklists-by-user-id")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ExceptionResponseModel), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<TaskListResponse>>> GetAllTaskListsByUserId(string id)
+    {
+        IEnumerable<TaskList>? queryResult = await _mediator.Send(new GetAllTaskListsByUserIdQuery(id));
+        IEnumerable<TaskListResponse> response = _mapper.Map<IEnumerable<TaskListResponse>>(queryResult!);
+        return StatusCode(StatusCodes.Status200OK, response);
+    }
+
+    /// <summary>
     /// Returns all task lists.
     /// </summary>
     /// <response code="200">If all task lists returns.</response>
