@@ -7,6 +7,8 @@ public interface ITaskListRepository
     Task CreateAsync(TaskList taskList);
     Task<TaskList?> GetAsync(string id);
     Task<IEnumerable<TaskList>?> GetAllAsync();
+    Task<IEnumerable<TaskList>> GetAllByUserIdAsync(string id);
+
     Task<TaskList?> UpdateAsync(TaskList taskList, string name);
     void DeleteAsync(TaskList taskList);
 }
