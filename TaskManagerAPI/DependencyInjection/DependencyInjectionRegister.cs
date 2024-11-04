@@ -1,8 +1,10 @@
 ﻿using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
+using TaskManagerAPI.Api.Configs;
 using TaskManagerAPI.Api.Middlewares;
 
 namespace TaskManagerAPI.Api.DependencyInjection;
@@ -10,7 +12,7 @@ namespace TaskManagerAPI.Api.DependencyInjection;
 public static class DependencyInjectionRegister
 {
 
-    public static IServiceCollection AddApi(this IServiceCollection services)
+    public static IServiceCollection AddApi(this IServiceCollection services, ConfigurationManager configuration)
     {
         services.AddTransient<ExceptionHandlingMiddleware>();
         services.AddControllers()
@@ -45,6 +47,8 @@ public static class DependencyInjectionRegister
 
         services.AddMappings();
 
+        services.AddCorsPolicies(configuration);
+
         return services;
     }
 
@@ -56,5 +60,25 @@ public static class DependencyInjectionRegister
         return services.AddSingleton(config)
              .AddScoped<IMapper, ServiceMapper>();
 
+    }
+
+    public static IServiceCollection AddCorsPolicies(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        CorsSettings corsSettings = new();
+
+        configuration.Bind(CorsSettings.SectionName, corsSettings);
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy(name: corsSettings.DefaultPolicy,
+            policy =>
+            {
+                policy.WithOrigins("http://localhost:5173")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            });
+        });
+
+        return services;
     }
 }
