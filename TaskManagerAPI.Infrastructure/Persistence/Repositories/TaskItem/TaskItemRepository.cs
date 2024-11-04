@@ -31,6 +31,13 @@ public sealed class TaskItemRepository : ITaskItemRepository
         _dbContext.SaveChanges();
     }
 
+    public async Task<IEnumerable<TaskItem>?> GetAllByTaskListId(string id)
+    {
+        return await _dbContext.TaskItems
+        .Where(item => item.TaskListId == id)
+        .ToListAsync();
+    }
+
     public async Task<TaskItem?> GetAsync(string id)
         => await _dbContext.TaskItems
             .FindAsync(id);

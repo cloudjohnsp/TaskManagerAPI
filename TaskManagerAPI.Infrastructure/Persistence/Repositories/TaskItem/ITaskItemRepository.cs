@@ -13,5 +13,6 @@ public interface ITaskItemRepository
     Task<TaskItem?> GetAsync(string id);
     Task<TaskItem> UpdateAsync(TaskItem taskItem, string description);
     Task<TaskItem> UpdateStatusAsync(TaskItem taskItem, bool isDone);
+    Task<IEnumerable<TaskItem>?> GetAllByTaskListId(string id);
     void DeleteAsync(TaskItem taskItem);
 }

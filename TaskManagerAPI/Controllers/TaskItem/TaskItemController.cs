@@ -69,6 +69,24 @@ public sealed class TaskItemController : TaskManagerApiController
     }
 
     /// <summary>
+    /// Returns all task items by given tasklist id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <response code="201">If any task item returns</response>
+    /// <response code="404">If a list with given id does not exists</response>
+    [HttpGet]
+    [Route("get-all-taskitems-by-tasklist-id")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ExceptionResponseModel), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<TaskItemResponse>?>> GetAllByTaskListId(string id)
+    {
+        GetAllTaskItemsByTaskListIdQuery query = new(id);
+        IEnumerable<TaskItem>? queryResult = await _mediator.Send(query);
+        IEnumerable<TaskItemResponse> response = _mapper.Map<IEnumerable<TaskItemResponse>>(queryResult!);
+        return StatusCode(StatusCodes.Status200OK, response);
+    }
+
+    /// <summary>
     /// Updates a task item description.
     /// </summary>
     /// <param name="request"></param>
